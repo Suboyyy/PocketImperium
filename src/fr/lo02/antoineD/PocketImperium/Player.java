@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class Player {
     private final int playerIndex;
@@ -40,7 +41,7 @@ public class Player {
 
     }
 
-    public void summonShips(int nbShips, List<Sector> sectors) throws IOException {
+    public void summonShips(int nbShips, List<Sector> sectors){
         System.out.println("Création de nouveaux vaisseaux :");
         Tile tile = selectTile(sectors);
         for (int i = 0; i < nbShips; i++) {
@@ -70,9 +71,9 @@ public class Player {
         // TODO : implement attack logic
     }
 
-    public Sector selectSector(List<Sector> sectors) throws IOException {
-        BufferedReader reader = new BufferedReader(
-                new InputStreamReader(System.in));
+    public Sector selectSector(List<Sector> sectors){
+        // TODO : test Scanner class
+        Scanner sc = new Scanner(System.in);
         if (sectors.size() == 9) {
             System.out.println("Choisissez un secteur entre 1 et 9 : ");
         } else {
@@ -81,50 +82,35 @@ public class Player {
                 System.out.println(sector.getSectorIndex());
             }
         }
-        String output = reader.readLine();
-        try {
-            int sectorIndex = Integer.parseInt(output);
-            for (Sector sector : sectors) {
-                if (sector.getSectorIndex() == sectorIndex) {
-                    return sector;
-                }
+        int sectorIndex = sc.nextInt();
+        for (Sector sector : sectors) {
+            if (sector.getSectorIndex() == sectorIndex) {
+                return sector;
             }
-            System.out.println("Ce secteur n'est pas valide");
-            return selectSector(sectors);
-        } catch (NumberFormatException e) {
-            // TODO : Exeption handling
-            System.out.println("Ceci n'est pas un nombre valide");
-            return selectSector(sectors);
         }
+        System.out.println("Ce secteur n'est pas valide");
+        return selectSector(sectors);
     }
 
-    public Tile selectTile(List<Sector> sectors) throws IOException {
+    public Tile selectTile(List<Sector> sectors){
         Sector sector = selectSector(sectors);
         Tile[] tiles = sector.getSectorTiles();
-        BufferedReader reader = new BufferedReader(
-                new InputStreamReader(System.in));
+        Scanner sc = new Scanner(System.in);
         System.out.println("Choisissez une tuile parmis les suivantes :");
         for (int i = 0; i < tiles.length; i++) {
             if (tiles[i].getTileOccupant() == this) {
                 System.out.println("Tuile n°" + i + " du secteur " + sector.getSectorIndex());
             }
         }
-        String output = reader.readLine();
-        try {
-            int tileIndex = Integer.parseInt(output);
-            if (tiles[tileIndex].getTileOccupant() == this) {
-                return tiles[tileIndex];
-            }
-            System.out.println("Cette tuile n'est pas valide");
-            return selectTile(sectors);
-        } catch (NumberFormatException e) {
-            // TODO : Exeption handling
-            System.out.println("Ceci n'est pas un nombre valide");
-            return selectTile(sectors);
+        int tileIndex = sc.nextInt();
+        if (tiles[tileIndex].getTileOccupant() == this) {
+            return tiles[tileIndex];
         }
+        System.out.println("Cette tuile n'est pas valide");
+        return selectTile(sectors);
     }
 
-    public Sector countPoints(List<Sector> sectors) throws IOException {
+    public Sector countPoints(List<Sector> sectors){
         // TODO : Tri Prime sector case
         Sector sector = selectSector(sectors);
         Player[] occupants = sector.getTileOccupants();

@@ -29,7 +29,7 @@ public class Game {
 
     }
 
-    public void countPoints() throws IOException {
+    public void countPoints(){
         List<Sector> countSectors = this.sectors;
         for(int i = 0; i < players.length; i++){
             int index = (firstPlayerIndex + i)%3;
