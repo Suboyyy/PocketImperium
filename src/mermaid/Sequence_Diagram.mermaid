@@ -1,0 +1,56 @@
+sequenceDiagram
+    Game->>Game: nextRound()
+    activate Game
+    Game->>FirstPlayer: chooseActions()
+    FirstPlayer-->>Game: actions
+    Game->>SecondPlayer: chooseActions()
+    SecondPlayer-->>Game: actions
+    Game->>ThirdPlayer: chooseActions()
+    ThirdPlayer-->>Game: actions
+    loop 3 times
+        note right of Game: Expand
+        loop 1-3 times
+            Game->>FirstPlayer: executeAction(expand)
+            FirstPlayer->>Ship: createShip()
+            Ship-->>FirstPlayer: ship
+            FirstPlayer->>Tile: setTileOccupant()
+            FirstPlayer-->>Game: endTurn()
+        end
+        note right of FirstPlayer: Explore
+        loop 1-3 times
+            Game->>SecondPlayer: executeAction(explore)
+            SecondPlayer->>Ship: moveShip()
+            SecondPlayer->>Tile: setTileOccupant()
+            SecondPlayer-->>Game: endTurn()
+        end
+        note right of SecondPlayer: Exterminate
+        loop 1-3 times
+            Game->>ThirdPlayer: executeAction(exterminate)
+            ThirdPlayer-->>Game: attack(FirstPlayer)
+            Game->>ThirdPlayer: destroyShip(nbShip)
+            Game->>FirstPlayer: destroyShip(nbShip)
+            ThirdPlayer->>Tile: setTileOccupant()
+            ThirdPlayer-->>Game: endTurn()
+        end
+    end
+    note right of Game: Supply Ship
+    Game->>Tile: supplyShip()
+    Tile->>Tile: supplyShips()
+    alt too many ships
+        Tile-->>FirstPlayer: destroyShip()
+    end
+    note right of Game: Count Points
+    Game->>FirstPlayer: countPoints()
+    FirstPlayer->>Sector: selectSector()
+    Game->>SecondPlayer: countPoints()
+    FirstPlayer->>Sector: selectSector()
+    Game->>ThirdPlayer: countPoints()
+    FirstPlayer->>Sector: selectSector()
+    Sector->>Tile: getTilePoints()
+    Tile-->>FirstPlayer: points
+    Tile-->>SecondPlayer: points
+    Tile-->>ThirdPlayer: points
+    alt Game over
+        Game->>Game: endGame()
+    end
+    deactivate Game

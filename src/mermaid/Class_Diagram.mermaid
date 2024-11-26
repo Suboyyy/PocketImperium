@@ -1,0 +1,131 @@
+classDiagram
+direction BT
+class BorderSector {
+  + BorderSector(Tile[], int[], int)
+  + getPlayer() Player
+  + generateTiles() Tile[]
+}
+class DataGestion {
+  + DataGestion()
+  + gameToJson(Game) void
+  + deleteGame() void
+  + jsonToGame(String[]) Game
+  + saveGame(String[]) void
+  + loadGame() void
+}
+class Game {
+  + Game(int)
+  - Tile[] tiles
+  - int firstPlayerIndex
+  - int[] players
+  + nextRound() void
+  + countPoints() void
+  + executeAction() void
+  + startGame() void
+  + endGame() void
+  + chooseAction() void
+	+ supplyShip() void
+}
+class Main {
+  - Main()
+  - Game game
+  - Main instance
+  + getGame() Game
+  + main(String[]) void
+  + getInstance() Main
+  + saveGame() void
+}
+class MiddleSector {
+  + MiddleSector(Tile[], int[], int)
+  + getPlayer() Player
+  + generateTiles() Tile[]
+}
+class Player {
+  + Player(int)
+  - int playerIndex
+  - int points
+  - Ship[] ships
+  - actions[] orderedActions
+  + selectShip(Ship[]) Ship[]
+  + executeActions(int) void
+  + addPoints(int) void
+  + getPoints() int
+  + orderActions() void
+  + attack(Ship[], int) void
+	+ destroyShip(Ship[]) void
+  + endTurn() void
+  + moveFleet(Ship[], int) void
+  + selectSector(Sector[]) Sector
+  + countPoints() void
+  + summonShips(int) void
+  + getPlayerIndex() int
+}
+class PlayerIA {
+  + PlayerIA(int, strategies)
+  - Strategy strategy
+  + moveFleet(Ship[], int) void
+  + attack(Ship[], int) void
+  + summonShips(int) void
+}
+class Sector {
+  + Sector(Tile[], int[], int)
+  - int sectorIndex
+  - Tile[] sectorTiles
+  - int[] sectorPattern
+  + generateTiles() Tile[]
+  + getSectorTiles() Tile[]
+  + getPlayer() Player
+}
+class Ship {
+  + Ship(int)
+  - Tile shipPosition
+  - int shipIndex
+}
+class Tile {
+  + Tile(int, int, Tile[])
+  - int tileIndex
+  - Tile[] tileNeighbours
+  - int tilePoints
+  - Player tileOccupant
+	- Ship[] ships
+  + setTileOccupant(Player) void
+  + getTilePoints() int
+	+ supplyShip() void
+}
+class TriPrimeSector {
+  + TriPrimeSector(Tile[], int[], int)
+  - Player player
+  + getPlayer() Player
+  + generateTiles() Tile[]
+}
+class UserInterface {
+  - UserInterface()
+  - Player[] players
+  - UserInterface instance
+  - Tile[] tiles
+  + getInstance() UserInterface
+	+ displayGame() void
+}
+class Strategy {
+	<<interface>>
+}
+
+
+BorderSector  --|>  Sector
+Game "1" *--> "41" Tile
+Main  ..>  Game : create
+Main  ..>  UserInterface : create
+Main "1" *--> "1" Game
+MiddleSector  --|>  Sector
+Player "1" *--> "1..15" Ship
+PlayerIA  --|>  Player
+Sector "1" *--> "1..5" Tile
+Ship "*" --> "1" Tile
+Tile "*" --> "1" Player
+TriPrimeSector  --|>  Sector
+UserInterface "1" --> "*" Player
+UserInterface "1" --> "*" Tile
+PlayerIA "1..2" o-- "1" Strategy
+Neutral --|> Strategy
+Agressive --|> Strategy
+Defensive --|> Strategy
