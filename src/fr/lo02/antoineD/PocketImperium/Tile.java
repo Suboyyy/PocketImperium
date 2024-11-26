@@ -15,6 +15,10 @@ public class Tile {
         this.tileNeighbours = tileNeighbours;
     }
 
+    public int getTileIndex() {
+        return tileIndex;
+    }
+
     public void setTileOccupant(Player tileOccupant) {
         this.tileOccupant = tileOccupant;
     }
@@ -29,6 +33,10 @@ public class Tile {
 
     public List<Ship> getShips() {
         return ships;
+    }
+
+    public void addShip(Ship ship) {
+        ships.add(ship);
     }
 
     public Tile[] getTileNeighbours() {

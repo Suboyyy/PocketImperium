@@ -4,8 +4,9 @@ public class Ship {
     private final int shipIndex;
     private Tile shipPosition;
 
-    public Ship(int shipIndex){
+    public Ship(int shipIndex, Tile shipPosition){
         this.shipIndex = shipIndex;
+        this.shipPosition = shipPosition;
     }
 
     public void moveShip(Tile destination){

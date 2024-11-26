@@ -41,8 +41,14 @@ public class Player {
 
     }
 
-    public void summonShips(int nbShips) {
-
+    public void summonShips(int nbShips, Sector[] sectors) throws IOException {
+        System.out.println("Création de nouveaux vaisseaux :");
+        Tile tile = selectTile(sectors);
+        for (int i = 0; i < nbShips; i++) {
+            Ship ship = new Ship(i, tile);
+            ships.add(ship);
+            tile.addShip(ship);
+        }
     }
 
     public Ship[] selectShip(List<Ship> ship) {
@@ -93,6 +99,32 @@ public class Player {
         }
     }
 
+    public Tile selectTile(Sector[] sectors) throws IOException {
+        Sector sector = selectSector(sectors);
+        Tile[] tiles = sector.getSectorTiles();
+        BufferedReader reader = new BufferedReader(
+                new InputStreamReader(System.in));
+        System.out.println("Choisissez une tuile parmis les suivantes :");
+        for (Tile tile : tiles) {
+            if (tile.getTileOccupant() == this) {
+                System.out.println("Tuile n°" + tile.getTileIndex());
+            }
+        }
+        String output = reader.readLine();
+        try {
+            int tileIndex = Integer.parseInt(output);
+            if (tiles[tileIndex].getTileOccupant() == this) {
+                return tiles[tileIndex];
+            }
+            System.out.println("Cette tuile n'est pas valide");
+            return selectTile(sectors);
+        } catch (NumberFormatException e) {
+            // TODO : Exeption handling
+            System.out.println("Ceci n'est pas un nombre valide");
+            return selectTile(sectors);
+        }
+    }
+
     public void countPoints(Sector[] sectors) throws IOException {
         // TODO : Tri Prime sector case
         Sector sector = selectSector(sectors);
@@ -121,6 +153,7 @@ public class Player {
     }
 
     public void endTurn(){
+        // TODO : End turn logic
     }
 
 }
