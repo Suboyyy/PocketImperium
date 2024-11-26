@@ -3,7 +3,6 @@ package fr.lo02.antoineD.PocketImperium;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,7 +40,7 @@ public class Player {
 
     }
 
-    public void summonShips(int nbShips, Sector[] sectors) throws IOException {
+    public void summonShips(int nbShips, List<Sector> sectors) throws IOException {
         System.out.println("Création de nouveaux vaisseaux :");
         Tile tile = selectTile(sectors);
         for (int i = 0; i < nbShips; i++) {
@@ -71,10 +70,10 @@ public class Player {
         // TODO : implement attack logic
     }
 
-    public Sector selectSector(Sector[] sectors) throws IOException {
+    public Sector selectSector(List<Sector> sectors) throws IOException {
         BufferedReader reader = new BufferedReader(
                 new InputStreamReader(System.in));
-        if (sectors.length == 9) {
+        if (sectors.size() == 9) {
             System.out.println("Choisissez un secteur entre 1 et 9 : ");
         } else {
             System.out.println("Choisissez un secteur parmis les suivants :");
@@ -99,15 +98,15 @@ public class Player {
         }
     }
 
-    public Tile selectTile(Sector[] sectors) throws IOException {
+    public Tile selectTile(List<Sector> sectors) throws IOException {
         Sector sector = selectSector(sectors);
         Tile[] tiles = sector.getSectorTiles();
         BufferedReader reader = new BufferedReader(
                 new InputStreamReader(System.in));
         System.out.println("Choisissez une tuile parmis les suivantes :");
-        for (Tile tile : tiles) {
-            if (tile.getTileOccupant() == this) {
-                System.out.println("Tuile n°" + tile.getTileIndex());
+        for (int i = 0; i < tiles.length; i++) {
+            if (tiles[i].getTileOccupant() == this) {
+                System.out.println("Tuile n°" + i + " du secteur " + sector.getSectorIndex());
             }
         }
         String output = reader.readLine();
@@ -125,7 +124,7 @@ public class Player {
         }
     }
 
-    public void countPoints(Sector[] sectors) throws IOException {
+    public Sector countPoints(List<Sector> sectors) throws IOException {
         // TODO : Tri Prime sector case
         Sector sector = selectSector(sectors);
         Player[] occupants = sector.getTileOccupants();
@@ -137,10 +136,10 @@ public class Player {
         }
         if (occupants == null){
             System.out.println("Ce secteur est vide");
-            countPoints(sectors);
+            return countPoints(sectors);
         } else if (!occupiedByThis) {
             System.out.println("Ce secteur n'est pas occupé par vous");
-            countPoints(sectors);
+            return countPoints(sectors);
         } else {
             Tile[] tiles = sector.getSectorTiles();
             for (Tile tile : tiles) {
@@ -149,7 +148,7 @@ public class Player {
                 }
             }
         }
-
+        return sector;
     }
 
     public void endTurn(){
