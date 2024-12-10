@@ -39,6 +39,10 @@ public class Tile {
         ships.add(ship);
     }
 
+    public void removeShip(Ship ship) {
+        ships.remove(ship);
+    }
+
     public Tile[] getTileNeighbours() {
         return tileNeighbours;
     }

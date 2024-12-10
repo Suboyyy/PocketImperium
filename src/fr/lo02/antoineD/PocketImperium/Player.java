@@ -29,6 +29,10 @@ public class Player {
         return points;
     }
 
+    public List<Ship> getShips() {
+        return ships;
+    }
+
     public void addPoints(int points) {
         this.points += points;
     }
@@ -49,6 +53,10 @@ public class Player {
             ships.add(ship);
             tile.addShip(ship);
         }
+    }
+
+    public void removeShip(Ship ship){
+        ships.remove(ship);
     }
 
     public Ship[] selectShip(List<Ship> ship) {

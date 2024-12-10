@@ -1,6 +1,7 @@
 package fr.lo02.antoineD.PocketImperium;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Game {
@@ -26,7 +27,15 @@ public class Game {
     }
 
     public void supplyShip(){
-
+        for(Tile tile : tiles){
+            List<Ship> ships = tile.getShips();
+            int to_delete_ships = ships.size() - 1 - tile.getTilePoints();
+            for(int i = 0; i < to_delete_ships; i++){
+                Player ship_player = tile.getTileOccupant();
+                tile.removeShip(ships.get(i));
+                ship_player.removeShip(ships.get(i));
+            }
+        }
     }
 
     public void countPoints(){

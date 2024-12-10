@@ -13,6 +13,10 @@ public class Ship {
         this.shipPosition = destination;
     }
 
+    public int getShipIndex(){
+        return this.shipIndex;
+    }
+
     public Tile getShipPosition(){
         return this.shipPosition;
     }
