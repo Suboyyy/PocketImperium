@@ -1,5 +1,7 @@
 package fr.lo02.antoineD.PocketImperium;
 
+import fr.lo02.antoineD.PocketImperium.Exception.AlreadyInitedException;
+
 public class TriPrimeSector extends Sector{
     private Player player;
 
@@ -17,5 +19,14 @@ public class TriPrimeSector extends Sector{
 
     public Tile[] generateTiles() {
         return null;
+    }
+
+    public void initSector() {
+        if (!isInit()){
+            setInit();
+            // TODO: Implement initSector
+        } else {
+            throw new AlreadyInitedException("TriPrime sector already initialized");
+        }
     }
 }
