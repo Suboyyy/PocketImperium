@@ -1,14 +1,11 @@
 package fr.lo02.antoineD.PocketImperium;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 public class Game {
     private List<Sector> sectors;
@@ -25,17 +22,16 @@ public class Game {
     }
 
     public void generateMap(){
-        // Open two json files
-        String filePath = "src/fr/lo02/antoineD/PocketImperium/Map/sectors.json";
-        try (InputStream is = new FileInputStream(filePath)) {
-            JSONTokener tokener = new JSONTokener(is);
-            JSONObject jsonObject = new JSONObject(tokener);
-
-            // Extract data from JSON
-            JSONObject sectorPattern = jsonObject.getJSONObject("SectorPattern");
-            JSONArray borderSector = sectorPattern.getJSONArray("BorderSector");
-            JSONArray middleSector = sectorPattern.getJSONArray("MiddleSector");
-            JSONArray triPrimeSector = sectorPattern.getJSONArray("TriPrimeSector");
+        // Reading properties
+        Properties neighboursProp = new Properties();
+        Properties sectorsProp = new Properties();
+        try (InputStream input = new FileInputStream("src/fr/lo02/antoineD/PocketImperium/neighbours.properties")) {
+            neighboursProp.load(input);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try (InputStream input = new FileInputStream("src/fr/lo02/antoineD/PocketImperium/sectors.properties")) {
+            sectorsProp.load(input);
         } catch (IOException e) {
             e.printStackTrace();
         }
