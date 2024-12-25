@@ -1,24 +1,21 @@
 package fr.lo02.antoineD.PocketImperium;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class Sector {
     private final int sectorIndex;
-    private final Tile[] sectorTiles;
+    private List<Tile> sectorTiles = new ArrayList<>();
     private final int[] sectorPattern;
-    private boolean inited = false;
 
-    public Sector(Tile[] sectorTiles, int[] sectorPattern, int sectorIndex){
-        this.sectorTiles = sectorTiles;
+    public Sector(int[] sectorPattern, int sectorIndex){
         this.sectorPattern = sectorPattern;
         this.sectorIndex = sectorIndex;
     }
 
     public abstract Player[] getTileOccupants();
-    public abstract Tile[] generateTiles();
-    public abstract void initSector();
 
-    public Tile[] getSectorTiles() {
+    public List<Tile> getSectorTiles() {
         return this.sectorTiles;
     }
 
@@ -26,11 +23,15 @@ public abstract class Sector {
         return this.sectorIndex;
     }
 
-    public boolean isInit() {
-        return this.inited;
+    public int[] getSectorPattern() {
+        return sectorPattern;
     }
 
-    public void setInit() {
-        this.inited = true;
+    public void addSectorTiles(Tile sectorTiles) {
+        this.sectorTiles.add(sectorTiles);
+    }
+
+    public void removeSectorTiles(Tile sectorTiles) {
+        this.sectorTiles.remove(sectorTiles);
     }
 }

@@ -4,15 +4,14 @@ import java.util.List;
 
 public class Tile {
     private final int tileIndex;
-    private final Tile[] tileNeighbours;
+    private Tile[] tileNeighbours;
     private List<Ship> ships;
     private final int tilePoints;
     private Player tileOccupant;
 
-    public Tile(int tilePoints, int tileIndex, Tile[] tileNeighbours) {
+    public Tile(int tilePoints, int tileIndex) {
         this.tilePoints = tilePoints;
         this.tileIndex = tileIndex;
-        this.tileNeighbours = tileNeighbours;
     }
 
     public int getTileIndex() {
@@ -33,6 +32,10 @@ public class Tile {
 
     public List<Ship> getShips() {
         return ships;
+    }
+
+    public void setTileNeighbours(Tile[] tileNeighbours) {
+        this.tileNeighbours = tileNeighbours;
     }
 
     public void addShip(Ship ship) {

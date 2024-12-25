@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -102,17 +103,17 @@ public class Player {
 
     public Tile selectTile(List<Sector> sectors){
         Sector sector = selectSector(sectors);
-        Tile[] tiles = sector.getSectorTiles();
+        List<Tile> tiles = sector.getSectorTiles();
         Scanner sc = new Scanner(System.in);
         System.out.println("Choisissez une tuile parmis les suivantes :");
-        for (int i = 0; i < tiles.length; i++) {
-            if (tiles[i].getTileOccupant() == this) {
+        for (int i = 0; i < tiles.size(); i++) {
+            if (tiles.get(i).getTileOccupant() == this) {
                 System.out.println("Tuile n°" + i + " du secteur " + sector.getSectorIndex());
             }
         }
         int tileIndex = sc.nextInt();
-        if (tiles[tileIndex].getTileOccupant() == this) {
-            return tiles[tileIndex];
+        if (tiles.get(tileIndex).getTileOccupant() == this) {
+            return tiles.get(tileIndex);
         }
         System.out.println("Cette tuile n'est pas valide");
         return selectTile(sectors);
@@ -135,7 +136,7 @@ public class Player {
             System.out.println("Ce secteur n'est pas occupé par vous");
             return countPoints(sectors);
         } else {
-            Tile[] tiles = sector.getSectorTiles();
+            List<Tile> tiles = sector.getSectorTiles();
             for (Tile tile : tiles) {
                 if (tile.getTileOccupant() == this) {
                     this.addPoints(tile.getTilePoints());

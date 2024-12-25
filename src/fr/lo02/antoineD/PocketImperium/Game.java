@@ -3,15 +3,13 @@ package fr.lo02.antoineD.PocketImperium;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 public class Game {
     private List<Sector> sectors;
     private int firstPlayerIndex;
     private Player[] players;
-    private Tile[] tiles;
+    private List<Tile> tiles = new ArrayList<>();
 
     public Game(int firstPlayerIndex){
 
@@ -21,39 +19,83 @@ public class Game {
 
     }
 
-    public void generateMap(){
-        // Reading properties
-        Properties neighboursProp = new Properties();
-        Properties sectorsProp = new Properties();
-        try (InputStream input = new FileInputStream("src/fr/lo02/antoineD/PocketImperium/neighbours.properties")) {
-            neighboursProp.load(input);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try (InputStream input = new FileInputStream("src/fr/lo02/antoineD/PocketImperium/sectors.properties")) {
-            sectorsProp.load(input);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        sectors.add(new BorderSector(new Tile[5], new int[5], 0));
-        sectors.add(new BorderSector(new Tile[5], new int[5], 1));
-        sectors.add(new BorderSector(new Tile[5], new int[5], 2));
-        sectors.add(new MiddleSector(new Tile[4], new int[4], 3));
-        sectors.add(new TriPrimeSector(new Tile[1], new int[1], 4));
-        sectors.add(new MiddleSector(new Tile[4], new int[4], 5));
-        sectors.add(new BorderSector(new Tile[5], new int[5], 6));
-        sectors.add(new BorderSector(new Tile[5], new int[5], 7));
-        sectors.add(new BorderSector(new Tile[5], new int[5], 8));
+    public void generateTiles(){
+        Data sectorProp = new Data("src/fr/lo02/antoineD/PocketImperium/Map/sectors.properties");
+        List<List<Integer>> borderSectorTiles = sectorProp.getData("BorderSector.SectorTiles");
+        List<List<Integer>> middleSectorTiles = sectorProp.getData("MiddleSector.SectorTiles");
+        List<List<Integer>> triPrimeSectorTiles = sectorProp.getData("TriPrimeSector.SectorTiles");
+        Data tilesNeighbours = new Data("src/fr/lo02/antoineD/PocketImperium/Map/neighbour.properties");
 
         for(Sector sector : sectors){
-            if (sector instanceof BorderSector){
-                sector.generateTiles();
-            } else if (sector instanceof MiddleSector){
-                sector.generateTiles();
-            } else if (sector instanceof TriPrimeSector){
-                sector.generateTiles();
+            int index = sector.getSectorIndex();
+            int[] sectorPattern = sector.getSectorPattern();
+            if(sector instanceof TriPrimeSector){
+                int[] tilePattern = triPrimeSectorTiles.get(index).stream().mapToInt(c -> c).toArray();
+                for(int j = 0; j < sectorPattern.length; j++){
+                    Tile t = new Tile(sectorPattern[j], tilePattern[j]);
+                    this.tiles.add(t);
+                    sector.addSectorTiles(t);
+                }
+            } else if (sector instanceof  MiddleSector) {
+                int[] tilePattern = middleSectorTiles.get(index).stream().mapToInt(c -> c).toArray();
+                for(int j = 0; j < sectorPattern.length; j++){
+                    Tile t = new Tile(sectorPattern[j], tilePattern[j]);
+                    this.tiles.add(t);
+                    sector.addSectorTiles(t);
+                }
+            } else {
+                int[] tilePattern = borderSectorTiles.get(index).stream().mapToInt(c -> c).toArray();
+                for(int j = 0; j < sectorPattern.length; j++){
+                    Tile t = new Tile(sectorPattern[j], tilePattern[j]);
+                    this.tiles.add(t);
+                    sector.addSectorTiles(t);
+                }
             }
         }
+
+        tiles.sort(Comparator.comparingInt(Tile::getTileIndex));
+
+        for (Tile tile : tiles) {
+            List<List<Integer>> rawNeighbours = tilesNeighbours.getData(""+tile.getTileIndex());
+            List<Integer> neighbours = rawNeighbours.getFirst();
+            Tile[] tileNeighbours = new Tile[neighbours.size()];
+            for (int i = 0; i < neighbours.size(); i++) {
+                tileNeighbours[i] = tiles.get(neighbours.get(i));
+            }
+            tile.setTileNeighbours(tileNeighbours);
+        }
+    }
+
+    public void generateMap(){
+        // Reading properties
+        Data sectorProp = new Data("src/fr/lo02/antoineD/PocketImperium/Map/sectors.properties");
+        List<List<Integer>> borderSectorPattern = sectorProp.getData("BorderSector.SectorPattern");
+        List<List<Integer>> middleSectorPattern = sectorProp.getData("MiddleSector.SectorPattern");
+        List<List<Integer>> triPrimeSectorPattern = sectorProp.getData("TriPrimeSector.SectorPattern");
+
+        Random random = new Random();
+
+        for(int i = 0; i < 9; i++){
+            if(i == 3 || i == 5){
+                int index = random.nextInt(triPrimeSectorPattern.size());
+                List<Integer> pattern = triPrimeSectorPattern.get(index);
+                triPrimeSectorPattern.remove(index);
+                sectors.add(new TriPrimeSector(pattern.stream().mapToInt(c -> c).toArray(), i));
+            } else if (i == 4) {
+                int index = random.nextInt(middleSectorPattern.size());
+                List<Integer> pattern = middleSectorPattern.get(index);
+                middleSectorPattern.remove(index);
+                sectors.add(new MiddleSector(pattern.stream().mapToInt(c -> c).toArray(), i));
+            } else {
+                int index = random.nextInt(borderSectorPattern.size());
+                List<Integer> pattern = borderSectorPattern.get(index);
+                borderSectorPattern.remove(index);
+                sectors.add(new BorderSector(pattern.stream().mapToInt(c -> c).toArray(), i));
+            }
+        }
+
+        generateTiles();
+
     }
 
     public void chooseAction(){

@@ -28,3 +28,5 @@ bin/
 ### Mac OS ###
 .DS_Store
 /.idea/
+
+/src/fr/lo02/antoineD/PocketImperium/test.java
