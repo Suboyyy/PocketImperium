@@ -1,5 +1,7 @@
 package fr.lo02.antoineD.PocketImperium;
 
+import fr.lo02.antoineD.PocketImperium.Exception.UndefinedActionException;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -34,16 +36,66 @@ public class Player {
         return ships;
     }
 
+    public actions[] getOrderedActions() {
+        return orderedActions;
+    }
+
     public void addPoints(int points) {
         this.points += points;
     }
 
-    public void orderActions(){
-
+    public void plan(){
+        this.orderedActions = new actions[3];
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Choisissez l'ordre de vos actions :");
+        System.out.println("1. Expand");
+        System.out.println("2. Explore");
+        System.out.println("3. Exterminate");
+        for (int i = 0; i < 3; i++) {
+            int actionIndex = sc.nextInt();
+            switch (actionIndex) {
+                case 1:
+                    if (Arrays.asList(orderedActions).contains(actions.EXPAND)) {
+                        System.out.println("Cette action a déjà été choisie");
+                        i--;
+                    } else {
+                        orderedActions[i] = actions.EXPAND;
+                    }
+                    break;
+                case 2:
+                    if (Arrays.asList(orderedActions).contains(actions.EXPLORE)) {
+                        System.out.println("Cette action a déjà été choisie");
+                        i--;
+                    } else {
+                        orderedActions[i] = actions.EXPLORE;
+                    }
+                    break;
+                case 3:
+                    if (Arrays.asList(orderedActions).contains(actions.EXTERMINATE)) {
+                        System.out.println("Cette action a déjà été choisie");
+                        i--;
+                    } else {
+                        orderedActions[i] = actions.EXTERMINATE;
+                    }
+                    break;
+                default:
+                    System.out.println("Cette action n'est pas valide");
+                    i--;
+                    break;
+            }
+        }
     }
 
-    public void executeActions(int actionId){
+    public void expand(int level){
+        // TODO : expand logic
+    }
 
+    public void explore(int level){
+        // TODO : explore logic
+    }
+
+    public void exterminate(int level){
+        // TODO : exterminate logic
     }
 
     public void summonShips(int nbShips, List<Sector> sectors){

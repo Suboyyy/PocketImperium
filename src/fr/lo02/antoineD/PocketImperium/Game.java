@@ -1,5 +1,8 @@
 package fr.lo02.antoineD.PocketImperium;
 
+import fr.lo02.antoineD.PocketImperium.Exception.AlreadyInitedException;
+import fr.lo02.antoineD.PocketImperium.Exception.UndefinedActionException;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -67,7 +70,10 @@ public class Game {
     }
 
     public void generateMap(){
-        // Reading properties
+        if (!sectors.isEmpty()) {
+            throw new AlreadyInitedException("Map already generated");
+        }
+
         Data sectorProp = new Data("src/fr/lo02/antoineD/PocketImperium/Map/sectors.properties");
         List<List<Integer>> borderSectorPattern = sectorProp.getData("BorderSector.SectorPattern");
         List<List<Integer>> middleSectorPattern = sectorProp.getData("MiddleSector.SectorPattern");
@@ -98,12 +104,55 @@ public class Game {
 
     }
 
-    public void chooseAction(){
-
+    public void plan(){
+        for (Player player : players){
+            player.plan();
+        }
     }
 
-    public void executeAction(){
+    public void perform(){
+        for (int i = 0; i < 3; i++) {
+            int expend = 0;
+            int explore = 0;
+            int exterminate = 0;
+            for (Player player : players){
+                Player.actions[] actions = player.getOrderedActions();
+                switch (actions[i]) {
+                    case EXPAND:
+                        expend++;
+                        break;
+                    case EXPLORE:
+                        explore++;
+                        break;
+                    case EXTERMINATE:
+                        exterminate++;
+                        break;
+                    default:
+                        throw new UndefinedActionException("Action non définie");
+                }
+            }
+            for (Player player : players){
+                Player.actions[] actions = player.getOrderedActions();
+                switch (actions[i]) {
+                    case EXPAND:
+                        player.expand(4-expend);
+                        break;
+                    case EXPLORE:
+                        player.explore(4-explore);
+                        break;
+                    case EXTERMINATE:
+                        player.exterminate(4-exterminate);
+                        break;
+                    default:
+                        throw new UndefinedActionException("Action non définie");
+                }
+            }
+        }
+    }
 
+    public void exploit(){
+        supplyShip();
+        countPoints();
     }
 
     public void supplyShip(){
