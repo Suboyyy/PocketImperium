@@ -20,6 +20,7 @@ public abstract class Sector {
                 players.add(tile.getTileOccupant());
             }
         }
+        return players;
     }
 
     public List<Tile> getSectorTiles() {
