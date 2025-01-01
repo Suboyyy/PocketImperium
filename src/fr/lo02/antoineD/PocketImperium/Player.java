@@ -1,10 +1,5 @@
 package fr.lo02.antoineD.PocketImperium;
 
-import fr.lo02.antoineD.PocketImperium.Exception.UndefinedActionException;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -87,12 +82,23 @@ public class Player {
     }
 
     public void expand(int level){
+        int nbShips = getShips().size();
+        if (nbShips == 25) {
+            System.out.println("Vous avez déjà le nombre maximum de vaisseaux");
+            return;
+        } else if (nbShips + level > 25) {
+            level = 25 - nbShips;
+            System.out.println("Le niveau de votre expansion a été réduit à " + level);
+        }
         List<Sector> sectors = Game.getSectors();
         summonShips(level, sectors);
     }
 
     public void explore(int level){
-        // TODO : explore logic
+        for (int i = 0; i < level; i++) {
+            List<Ship> fleet = selectFleet(ships);
+            moveFleet(fleet);
+        }
     }
 
     public void exterminate(int level){
@@ -101,7 +107,7 @@ public class Player {
 
     public void summonShips(int nbShips, List<Sector> sectors){
         System.out.println("Création de nouveaux vaisseaux :");
-        Tile tile = selectTile(sectors);
+        Tile tile = selectTile(sectors, false);
         for (int i = 0; i < nbShips; i++) {
             Ship ship = new Ship(i, tile);
             ships.add(ship);
@@ -113,11 +119,39 @@ public class Player {
         ships.remove(ship);
     }
 
-    public Ship[] selectShip(List<Ship> ship) {
-        return null;
+    public List<Ship> selectFleet(List<Ship> ship) {
+        System.out.println("Voici vos vaisseaux, quelle flotte voulez vous utiliser ?");
+        for (Ship s : ships) {
+            System.out.println("Vaisseau n°" + s.getShipIndex() + " sur la tuile " + s.getShipPosition().getTileIndex());
+        }
+        Scanner sc = new Scanner(System.in);
+        int shipIndex = sc.nextInt();
+        int tileIndex = -1;
+        for (Ship s : ships) {
+            if (s.getShipIndex() == shipIndex) {
+                tileIndex = s.getShipPosition().getTileIndex();
+                break;
+            }
+        }
+        if (tileIndex == -1) {
+            System.out.println("Ce vaisseau n'existe pas");
+            return selectFleet(ships);
+        }
+        List<Ship> fleet = new ArrayList<>();
+        for (Ship s : ships) {
+            if (s.getShipPosition().getTileIndex() == tileIndex) {
+                fleet.add(s);
+            }
+        }
+        return fleet;
     }
 
-    public void moveFleet(List<Ship> fleet, Tile destination) {
+    public void moveFleet(List<Ship> fleet) {
+        // TODO : Can't move through Tri-Prime
+        //  Auto occupy system
+        //  can't move half hex
+        System.out.println("Où voulez vous déplacer votre flotte ?");
+        Tile destination = selectTile(Game.getSectors(), false);
         for (Ship ship : fleet) {
             if (ship.getShipPosition().hasNeighbour(destination))
                 ship.moveShip(destination);
@@ -128,8 +162,8 @@ public class Player {
     }
 
     public void attack(List<Ship> fleet, Tile destination) {
-        List<Ship> enemyShips = destination.getShips();
-        moveFleet(fleet, destination);
+        // List<Ship> enemyShips = destination.getShips();
+        // moveFleet(fleet, destination);
         // TODO : implement attack logic
     }
 
@@ -154,7 +188,7 @@ public class Player {
         return selectSector(sectors);
     }
 
-    public Tile selectTile(List<Sector> sectors){
+    public Tile selectTile(List<Sector> sectors, boolean bypass){
         Sector sector = selectSector(sectors);
         List<Tile> tiles = sector.getSectorTiles();
         Scanner sc = new Scanner(System.in);
@@ -165,11 +199,11 @@ public class Player {
             }
         }
         int tileIndex = sc.nextInt();
-        if (tiles.get(tileIndex).getTileOccupant() == this) {
+        if (tiles.get(tileIndex).getTileOccupant() == this || bypass) {
             return tiles.get(tileIndex);
         }
         System.out.println("Cette tuile n'est pas valide");
-        return selectTile(sectors);
+        return selectTile(sectors, false);
     }
 
     public Sector countPoints(List<Sector> sectors){
