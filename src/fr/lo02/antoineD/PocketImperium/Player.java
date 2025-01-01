@@ -96,13 +96,28 @@ public class Player {
 
     public void explore(int level){
         for (int i = 0; i < level; i++) {
+            System.out.println("Exploration n°" + i);
             List<Ship> fleet = selectFleet(ships);
-            moveFleet(fleet);
+            System.out.println("1er déplacement de la flotte :");
+            moveFleet(fleet, false);
+            if (fleet.getFirst().getShipPosition().getTilePoints() == 3) {return;}
+            System.out.println("2ème déplacement de la flotte :");
+            moveFleet(fleet, false);
         }
     }
 
     public void exterminate(int level){
-        // TODO : exterminate logic
+        for (int i = 0; i < level; i++) {
+            System.out.println("Attaque n°" + i);
+            System.out.println("Sélection de la case à attaquer :");
+            Tile destination = selectTile(Game.getSectors(), true);
+            while (destination.getTileOccupant() == this) {
+                System.out.println("Vous ne pouvez pas attaquer une case occupée par vous même");
+                destination = selectTile(Game.getSectors(), true);
+            }
+            List<Ship> fleet = selectFleet(ships, destination);
+            attack(fleet, destination);
+        }
     }
 
     public void summonShips(int nbShips, List<Sector> sectors){
@@ -146,12 +161,40 @@ public class Player {
         return fleet;
     }
 
-    public void moveFleet(List<Ship> fleet) {
-        // TODO : Can't move through Tri-Prime
-        //  Auto occupy system
+    public List<Ship> selectFleet(List<Ship> ship, Tile tile) {
+        List<Ship> fleet = new ArrayList<>();
+        for (Ship s : ships) {
+            if (Arrays.asList(s.getShipPosition().getTileNeighbours()).contains(tile)) {
+                System.out.println("Vaisseau n°" + s.getShipIndex() + " sur la tuile " + s.getShipPosition().getTileIndex());
+                System.out.println("Voulez vous ajouter ce vaisseau à la flotte ? (y/n)");
+                String answer;
+                Scanner sc = new Scanner(System.in);
+                do {
+                    answer = sc.nextLine();
+                } while (!answer.equals("y") && !answer.equals("n"));
+                if (answer.equals("y")) {
+                    fleet.add(s);
+                }
+            }
+        }
+        return fleet;
+    }
+
+    public void moveFleet(List<Ship> fleet, boolean bypass) {
+        // TODO : Auto occupy system
         //  can't move half hex
         System.out.println("Où voulez vous déplacer votre flotte ?");
-        Tile destination = selectTile(Game.getSectors(), false);
+        Tile destination = selectTile(Game.getSectors(), bypass);
+        for (Ship ship : fleet) {
+            if (ship.getShipPosition().hasNeighbour(destination))
+                ship.moveShip(destination);
+            else {
+                System.out.println("La destination n'est pas un voisin du vaisseau");
+            }
+        }
+    }
+
+    public void moveFleet(List<Ship> fleet, Tile destination, boolean bypass) {
         for (Ship ship : fleet) {
             if (ship.getShipPosition().hasNeighbour(destination))
                 ship.moveShip(destination);
@@ -162,9 +205,19 @@ public class Player {
     }
 
     public void attack(List<Ship> fleet, Tile destination) {
-        // List<Ship> enemyShips = destination.getShips();
-        // moveFleet(fleet, destination);
-        // TODO : implement attack logic
+        List<Ship> defenderShips = destination.getShips();
+        Player defender = destination.getTileOccupant();
+        int min = Math.min(fleet.size(), defenderShips.size());
+        for (int i = 0; i < min; i++) {
+            this.removeShip(fleet.get(i));
+            defender.removeShip(defenderShips.get(i));
+            fleet.remove(fleet.get(i));
+            defenderShips.remove(defenderShips.get(i));
+        }
+        if (defenderShips.isEmpty()) {
+            moveFleet(fleet, destination, true);
+            destination.setTileOccupant(this);
+        }
     }
 
     public Sector selectSector(List<Sector> sectors){
