@@ -4,9 +4,4 @@ public class BorderSector extends Sector{
     public BorderSector(int[] sectorPattern, int sectorIndex) {
         super(sectorPattern, sectorIndex);
     }
-
-    public Player[] getTileOccupants() {
-        return null;
-    }
-
 }

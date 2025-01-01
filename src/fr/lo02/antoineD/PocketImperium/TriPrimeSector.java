@@ -7,12 +7,4 @@ public class TriPrimeSector extends Sector{
         super(sectorPattern, sectorIndex);
         this.player = null;
     }
-
-    public Player[] getTileOccupants() {
-        if (this.player != null) {
-            return new Player[]{this.player};
-        }
-        return null;
-    }
-
 }

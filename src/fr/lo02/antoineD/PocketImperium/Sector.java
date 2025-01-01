@@ -13,7 +13,14 @@ public abstract class Sector {
         this.sectorIndex = sectorIndex;
     }
 
-    public abstract Player[] getTileOccupants();
+    public List<Player> getTileOccupants() {
+        List<Player> players = new ArrayList<>();
+        for (Tile tile : sectorTiles) {
+            if (tile.getTileOccupant() != null && !players.contains(tile.getTileOccupant())) {
+                players.add(tile.getTileOccupant());
+            }
+        }
+    }
 
     public List<Tile> getSectorTiles() {
         return this.sectorTiles;

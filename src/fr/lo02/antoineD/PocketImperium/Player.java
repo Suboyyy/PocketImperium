@@ -260,29 +260,27 @@ public class Player {
     }
 
     public Sector countPoints(List<Sector> sectors){
-        // TODO : Tri Prime sector case
         Sector sector = selectSector(sectors);
-        Player[] occupants = sector.getTileOccupants();
-        boolean occupiedByThis = false;
-        for (Player occupant : occupants) {
-            if (occupant == this) {
-                occupiedByThis = true;
-            }
-        }
-        if (Arrays.stream(occupants).toList().isEmpty()){
-            System.out.println("Ce secteur est vide");
-            return countPoints(sectors);
-        } else if (!occupiedByThis) {
+        List<Player> occupants = sector.getTileOccupants();
+        int points = 0;
+        if (!occupants.contains(this)) {
             System.out.println("Ce secteur n'est pas occupé par vous");
             return countPoints(sectors);
         } else {
             List<Tile> tiles = sector.getSectorTiles();
             for (Tile tile : tiles) {
                 if (tile.getTileOccupant() == this) {
-                    this.addPoints(tile.getTilePoints());
+                    points += tile.getTilePoints();
+                }
+            }
+            for (Sector s : sectors) {
+                if (s instanceof TriPrimeSector && s.getTileOccupants().contains(this)) {
+                    points += 3;
                 }
             }
         }
+        this.addPoints(points);
+        System.out.println("Vous avez gagné " + points + " points");
         return sector;
     }
 
