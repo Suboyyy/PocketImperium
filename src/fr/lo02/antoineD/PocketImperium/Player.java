@@ -87,7 +87,8 @@ public class Player {
     }
 
     public void expand(int level){
-        // TODO : expand logic
+        List<Sector> sectors = Game.getSectors();
+        summonShips(level, sectors);
     }
 
     public void explore(int level){
@@ -181,7 +182,7 @@ public class Player {
                 occupiedByThis = true;
             }
         }
-        if (occupants == null){
+        if (Arrays.stream(occupants).toList().isEmpty()){
             System.out.println("Ce secteur est vide");
             return countPoints(sectors);
         } else if (!occupiedByThis) {

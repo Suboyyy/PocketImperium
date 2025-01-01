@@ -9,13 +9,17 @@ import java.io.InputStream;
 import java.util.*;
 
 public class Game {
-    private List<Sector> sectors;
+    private static List<Sector> sectors;
     private int firstPlayerIndex;
     private Player[] players;
     private List<Tile> tiles = new ArrayList<>();
 
     public Game(int firstPlayerIndex){
 
+    }
+
+    public static List<Sector> getSectors() {
+        return sectors;
     }
 
     public void startGame(){
@@ -168,7 +172,7 @@ public class Game {
     }
 
     public void countPoints(){
-        List<Sector> countSectors = this.sectors;
+        List<Sector> countSectors = sectors;
         for(int i = 0; i < players.length; i++){
             int index = (firstPlayerIndex + i)%3;
             Sector sector = players[index].countPoints(countSectors);
