@@ -180,6 +180,27 @@ public class Game {
         }
     }
 
+    public void printMap(){
+        int[] pattern = new int[]{6, 5};
+        int index = 0;
+        for (int i = 0; i < 9; i++) {
+            System.out.println("|");
+            for (int j = 0; j < pattern[i%2]; j++) {
+                System.out.print(" lvl " + tiles.get(index).getTilePoints() + " |");
+                if (index == 19 || index == 23 || index == 24 || index == 28) {
+                    System.out.println("| lvl 24 |");
+                }
+            }
+            for (int j = 0; j < pattern[i%2]; j++) {
+                System.out.print(" ship " + tiles.get(index).getShips().size() + " |");
+                if (index == 19 || index == 23 || index == 24 || index == 28) {
+                    System.out.println(" ship " + tiles.get(24).getShips().size() + " |");
+                }
+            }
+            index++;
+        }
+    }
+
     public void nextRound(){
 
     }
