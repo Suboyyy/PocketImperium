@@ -31,6 +31,7 @@ public class Game {
         List<List<Integer>> borderSectorTiles = sectorProp.getData("BorderSector.SectorTiles");
         List<List<Integer>> middleSectorTiles = sectorProp.getData("MiddleSector.SectorTiles");
         List<List<Integer>> triPrimeSectorTiles = sectorProp.getData("TriPrimeSector.SectorTiles");
+        List<Integer> halfTiles = sectorProp.getData("HalfTiles").getFirst();
         Data tilesNeighbours = new Data("src/fr/lo02/antoineD/PocketImperium/Map/neighbour.properties");
 
         for(Sector sector : sectors){
@@ -58,6 +59,11 @@ public class Game {
                     sector.addSectorTiles(t);
                 }
             }
+        }
+
+        for (int i : halfTiles) {
+            Tile t = new Tile(0, i);
+            this.tiles.add(t);
         }
 
         tiles.sort(Comparator.comparingInt(Tile::getTileIndex));
@@ -202,7 +208,7 @@ public class Game {
     }
 
     public void nextRound(){
-
+        firstPlayerIndex = (firstPlayerIndex + 1) % 3;
     }
 
     public void endGame(){

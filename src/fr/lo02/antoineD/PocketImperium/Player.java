@@ -182,7 +182,6 @@ public class Player {
 
     public void moveFleet(List<Ship> fleet, boolean bypass) {
         // TODO : Auto occupy system
-        //  can't move half hex
         System.out.println("Où voulez vous déplacer votre flotte ?");
         Tile destination = selectTile(Game.getSectors(), bypass);
         for (Ship ship : fleet) {
