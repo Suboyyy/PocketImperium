@@ -1,5 +1,7 @@
 package fr.lo02.antoineD.PocketImperium;
 
+import fr.lo02.antoineD.PocketImperium.Exception.InvalidParameterException;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -8,14 +10,14 @@ import java.util.Scanner;
 public class Player {
     private final int playerIndex;
     private int points;
-    private List<Ship> ships;
+    private final List<Ship> ships;
     public enum actions {EXPAND, EXPLORE, EXTERMINATE}
     private actions[] orderedActions;
 
     public Player(int playerIndex) {
         this.playerIndex = playerIndex;
         this.points = 0;
-        this.ships = new ArrayList<Ship>();
+        this.ships = new ArrayList<>();
         this.orderedActions = new actions[3];
     }
 
@@ -37,6 +39,29 @@ public class Player {
 
     public void addPoints(int points) {
         this.points += points;
+    }
+
+    public void startGame(List<Sector> sectors){
+        System.out.println("Déploiement initial pour le joueur n°" + playerIndex+1);
+        System.out.println("Choix d'une tuile de niveau 1 :");
+        List<Sector> sector = new ArrayList<>();
+        Sector selectedSector = selectSector(sectors);
+        while (!selectedSector.getTileOccupants().isEmpty() || selectedSector instanceof TriPrimeSector) {
+            System.out.println("Ce secteur est déjà occupé");
+            selectedSector = selectSector(sectors);
+        }
+        sector.add(selectedSector);
+        System.out.println("Veuillez sélectionner une tuile de niveau 1");
+        Tile tile = selectTile(sector, true);
+        while (tile.getTilePoints() != 1){
+            System.out.println("La tuile sélectionnée n'est pas de niveau 1");
+            tile = selectTile(sector, true);
+        }
+        for (int i = 0; i < 2; i++) {
+            Ship ship = new Ship(i, tile);
+            ships.add(ship);
+            tile.addShip(ship);
+        }
     }
 
     public void plan(){
@@ -95,9 +120,12 @@ public class Player {
     }
 
     public void explore(int level){
+        // TODO : Auto occupy system
+        //  Add ship during move
+        //  Only one move per ship
         for (int i = 0; i < level; i++) {
             System.out.println("Exploration n°" + i);
-            List<Ship> fleet = selectFleet(ships);
+            List<Ship> fleet = selectFleet();
             System.out.println("1er déplacement de la flotte :");
             moveFleet(fleet, false);
             if (fleet.getFirst().getShipPosition().getTilePoints() == 3) {return;}
@@ -115,7 +143,7 @@ public class Player {
                 System.out.println("Vous ne pouvez pas attaquer une case occupée par vous même");
                 destination = selectTile(Game.getSectors(), true);
             }
-            List<Ship> fleet = selectFleet(ships, destination);
+            List<Ship> fleet = selectFleet(destination);
             attack(fleet, destination);
         }
     }
@@ -134,7 +162,7 @@ public class Player {
         ships.remove(ship);
     }
 
-    public List<Ship> selectFleet(List<Ship> ship) {
+    public List<Ship> selectFleet() {
         System.out.println("Voici vos vaisseaux, quelle flotte voulez vous utiliser ?");
         for (Ship s : ships) {
             System.out.println("Vaisseau n°" + s.getShipIndex() + " sur la tuile " + s.getShipPosition().getTileIndex());
@@ -150,7 +178,7 @@ public class Player {
         }
         if (tileIndex == -1) {
             System.out.println("Ce vaisseau n'existe pas");
-            return selectFleet(ships);
+            return selectFleet();
         }
         List<Ship> fleet = new ArrayList<>();
         for (Ship s : ships) {
@@ -161,7 +189,7 @@ public class Player {
         return fleet;
     }
 
-    public List<Ship> selectFleet(List<Ship> ship, Tile tile) {
+    public List<Ship> selectFleet(Tile tile) {
         List<Ship> fleet = new ArrayList<>();
         for (Ship s : ships) {
             if (Arrays.asList(s.getShipPosition().getTileNeighbours()).contains(tile)) {
@@ -181,7 +209,6 @@ public class Player {
     }
 
     public void moveFleet(List<Ship> fleet, boolean bypass) {
-        // TODO : Auto occupy system
         System.out.println("Où voulez vous déplacer votre flotte ?");
         Tile destination = selectTile(Game.getSectors(), bypass);
         for (Ship ship : fleet) {
@@ -193,7 +220,7 @@ public class Player {
         }
     }
 
-    public void moveFleet(List<Ship> fleet, Tile destination, boolean bypass) {
+    public void moveFleet(List<Ship> fleet, Tile destination) {
         for (Ship ship : fleet) {
             if (ship.getShipPosition().hasNeighbour(destination))
                 ship.moveShip(destination);
@@ -214,7 +241,7 @@ public class Player {
             defenderShips.remove(defenderShips.get(i));
         }
         if (defenderShips.isEmpty()) {
-            moveFleet(fleet, destination, true);
+            moveFleet(fleet, destination);
             destination.setTileOccupant(this);
         }
     }
@@ -225,7 +252,7 @@ public class Player {
         if (sectors.size() == 9) {
             System.out.println("Choisissez un secteur entre 1 et 9 : ");
         } else {
-            System.out.println("Choisissez un secteur parmis les suivants :");
+            System.out.println("Choisissez un secteur parmi les suivants :");
             for (Sector sector : sectors) {
                 System.out.println(sector.getSectorIndex());
             }
@@ -241,16 +268,27 @@ public class Player {
     }
 
     public Tile selectTile(List<Sector> sectors, boolean bypass){
-        Sector sector = selectSector(sectors);
+        Sector sector;
+        if (sectors.isEmpty()) {
+            throw new InvalidParameterException("La liste des secteurs ne doit pas être vide");
+        } else if (sectors.size() == 1) {
+            sector = sectors.getFirst();
+        } else {
+            sector = selectSector(sectors);
+        }
         List<Tile> tiles = sector.getSectorTiles();
         Scanner sc = new Scanner(System.in);
-        System.out.println("Choisissez une tuile parmis les suivantes :");
+        System.out.println("Choisissez une tuile parmi les suivantes :");
         for (int i = 0; i < tiles.size(); i++) {
-            if (tiles.get(i).getTileOccupant() == this) {
+            if (tiles.get(i).getTileOccupant() == this || bypass) {
                 System.out.println("Tuile n°" + i + " du secteur " + sector.getSectorIndex());
             }
         }
         int tileIndex = sc.nextInt();
+        if (tileIndex < 0 || tileIndex >= tiles.size()) {
+            System.out.println("Cette tuile n'est pas valide");
+            return selectTile(sectors, bypass);
+        }
         if (tiles.get(tileIndex).getTileOccupant() == this || bypass) {
             return tiles.get(tileIndex);
         }
@@ -281,10 +319,6 @@ public class Player {
         this.addPoints(points);
         System.out.println("Vous avez gagné " + points + " points");
         return sector;
-    }
-
-    public void endTurn(){
-        // TODO : End turn logic
     }
 
 }

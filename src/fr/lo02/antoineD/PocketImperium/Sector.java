@@ -5,7 +5,7 @@ import java.util.List;
 
 public abstract class Sector {
     private final int sectorIndex;
-    private List<Tile> sectorTiles = new ArrayList<>();
+    private final List<Tile> sectorTiles = new ArrayList<>();
     private final int[] sectorPattern;
 
     public Sector(int[] sectorPattern, int sectorIndex){
@@ -39,7 +39,4 @@ public abstract class Sector {
         this.sectorTiles.add(sectorTiles);
     }
 
-    public void removeSectorTiles(Tile sectorTiles) {
-        this.sectorTiles.remove(sectorTiles);
-    }
 }

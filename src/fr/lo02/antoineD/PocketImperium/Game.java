@@ -3,19 +3,35 @@ package fr.lo02.antoineD.PocketImperium;
 import fr.lo02.antoineD.PocketImperium.Exception.AlreadyInitedException;
 import fr.lo02.antoineD.PocketImperium.Exception.UndefinedActionException;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 
 public class Game {
-    private static List<Sector> sectors;
+    private static final List<Sector> sectors = new ArrayList<>();
     private int firstPlayerIndex;
-    private Player[] players;
-    private List<Tile> tiles = new ArrayList<>();
+    private final List<Player> players;
+    private final List<Tile> tiles = new ArrayList<>();
 
-    public Game(int firstPlayerIndex){
-
+    public Game(int firstPlayerIndex, int nbPlayers){
+        this.firstPlayerIndex = firstPlayerIndex;
+        this.players = new ArrayList<>(3);
+        for (int i = 0; i < nbPlayers; i++) {
+            players.add(new Player(i));
+        }
+        for (int i = nbPlayers; i < 3; i++) {
+            int rd = new Random().nextInt(3);
+            players.add(new PlayerIA(i, PlayerIA.strategies.values()[rd]));
+        }
+        generateMap();
+        startGame();
+        int i = 0;
+        while (i < 9 && players.size() == 3){
+            plan();
+            perform();
+            exploit();
+            nextRound();
+            i++;
+        }
+        endGame();
     }
 
     public static List<Sector> getSectors() {
@@ -23,7 +39,14 @@ public class Game {
     }
 
     public void startGame(){
-
+        for (int i = 0; i < 3; i++) {
+            Player player = players.get((firstPlayerIndex + i) % 3);
+            player.startGame(sectors);
+        }
+        for (int i = 0; i < 3; i++) {
+            Player player = players.get((2 - i + firstPlayerIndex) % 3);
+            player.startGame(sectors);
+        }
     }
 
     public void generateTiles(){
@@ -115,17 +138,21 @@ public class Game {
     }
 
     public void plan(){
-        for (Player player : players){
+        for (int i = 0; i < 3; i++) {
+            printMap();
+            Player player = players.get((firstPlayerIndex + i) % 3);
             player.plan();
         }
     }
 
     public void perform(){
         for (int i = 0; i < 3; i++) {
+            printMap();
             int expend = 0;
             int explore = 0;
             int exterminate = 0;
-            for (Player player : players){
+            for (int j = 0; j < 3; j++) {
+                Player player = players.get((firstPlayerIndex + j) % 3);
                 Player.actions[] actions = player.getOrderedActions();
                 switch (actions[i]) {
                     case EXPAND:
@@ -141,7 +168,8 @@ public class Game {
                         throw new UndefinedActionException("Action non définie");
                 }
             }
-            for (Player player : players){
+            for (int j = 0; j < 3; j++) {
+                Player player = players.get((firstPlayerIndex + j) % 3);
                 Player.actions[] actions = player.getOrderedActions();
                 switch (actions[i]) {
                     case EXPAND:
@@ -161,6 +189,7 @@ public class Game {
     }
 
     public void exploit(){
+        printMap();
         supplyShip();
         countPoints();
     }
@@ -179,9 +208,9 @@ public class Game {
 
     public void countPoints(){
         List<Sector> countSectors = sectors;
-        for(int i = 0; i < players.length; i++){
+        for(int i = 0; i < players.size(); i++){
             int index = (firstPlayerIndex + i)%3;
-            Sector sector = players[index].countPoints(countSectors);
+            Sector sector = players.get(index).countPoints(countSectors);
             countSectors.remove(sector);
         }
     }
@@ -190,6 +219,9 @@ public class Game {
         int[] pattern = new int[]{6, 5};
         int index = 0;
         for (int i = 0; i < 9; i++) {
+            if (pattern[i%2] == 5) {
+                System.out.print("  ");
+            }
             System.out.println("|");
             for (int j = 0; j < pattern[i%2]; j++) {
                 System.out.print(" lvl " + tiles.get(index).getTilePoints() + " |");
@@ -197,6 +229,10 @@ public class Game {
                     System.out.println("| lvl 24 |");
                 }
             }
+            if (pattern[i%2] == 5) {
+                System.out.print("  ");
+            }
+            System.out.println("|");
             for (int j = 0; j < pattern[i%2]; j++) {
                 System.out.print(" ship " + tiles.get(index).getShips().size() + " |");
                 if (index == 19 || index == 23 || index == 24 || index == 28) {
@@ -208,11 +244,30 @@ public class Game {
     }
 
     public void nextRound(){
-        firstPlayerIndex = (firstPlayerIndex + 1) % 3;
+        for (int i = 0; i < 3; i++) {
+            Player player = players.get((firstPlayerIndex + i) % 3);
+            if (player.getShips().isEmpty()){
+                players.remove(player);
+            }
+        }
+        firstPlayerIndex = (firstPlayerIndex + 1) % players.size();
     }
 
     public void endGame(){
+        Player winner = players.getFirst();
+        for (Tile tile : tiles) {
+            if (tile.getTileOccupant() != null) {
+                tile.getTileOccupant().addPoints(tile.getTilePoints() * 2);
+            }
+        }
 
+        for (Player player : players) {
+            if (player.getPoints() > winner.getPoints()) {
+                winner = player;
+            }
+        }
+
+        System.out.println("Le joueur n°" + (winner.getPlayerIndex()+1) + " a gagné avec " + winner.getPoints() + " points");
     }
 
 }

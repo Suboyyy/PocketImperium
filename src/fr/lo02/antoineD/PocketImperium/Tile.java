@@ -1,11 +1,12 @@
 package fr.lo02.antoineD.PocketImperium;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Tile {
     private final int tileIndex;
     private Tile[] tileNeighbours;
-    private List<Ship> ships;
+    private final List<Ship> ships = new ArrayList<>();
     private final int tilePoints;
     private Player tileOccupant;
 

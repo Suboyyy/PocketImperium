@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.Properties;
 
 public class Data {
-    protected Properties prop;
+    protected Properties prop = new Properties();
 
     public Data(String path){
-        try (InputStream input = new FileInputStream("src/fr/lo02/antoineD/PocketImperium/Map/neighbour.properties")) {
+        try (InputStream input = new FileInputStream(path)) {
             this.prop.load(input);
         } catch (IOException e) {
             e.printStackTrace();
