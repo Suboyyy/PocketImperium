@@ -1,7 +1,9 @@
 package fr.lo02.antoineD.PocketImperium;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Tile {
     private final int tileIndex;
@@ -60,4 +62,14 @@ public class Tile {
         return false;
     }
 
+    @Override
+    public String toString() {
+        return "Tile{" +
+                "tileIndex=" + tileIndex +
+                ", tileNeighbours=" + Arrays.stream(tileNeighbours).map(Tile::getTileIndex).toList() +
+                ", ships=" + ships +
+                ", tilePoints=" + tilePoints +
+                ", tileOccupant=" + tileOccupant +
+                '}';
+    }
 }

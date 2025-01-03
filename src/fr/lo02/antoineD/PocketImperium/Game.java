@@ -58,24 +58,26 @@ public class Game {
         Data tilesNeighbours = new Data("src/fr/lo02/antoineD/PocketImperium/Map/neighbour.properties");
 
         for(Sector sector : sectors){
-            int index = sector.getSectorIndex();
             int[] sectorPattern = sector.getSectorPattern();
             if(sector instanceof TriPrimeSector){
-                int[] tilePattern = triPrimeSectorTiles.get(index).stream().mapToInt(c -> c).toArray();
+                int[] tilePattern = triPrimeSectorTiles.getFirst().stream().mapToInt(c -> c).toArray();
+                triPrimeSectorTiles.removeFirst();
                 for(int j = 0; j < sectorPattern.length; j++){
                     Tile t = new Tile(sectorPattern[j], tilePattern[j]);
                     this.tiles.add(t);
                     sector.addSectorTiles(t);
                 }
             } else if (sector instanceof  MiddleSector) {
-                int[] tilePattern = middleSectorTiles.get(index).stream().mapToInt(c -> c).toArray();
+                int[] tilePattern = middleSectorTiles.getFirst().stream().mapToInt(c -> c).toArray();
+                middleSectorTiles.removeFirst();
                 for(int j = 0; j < sectorPattern.length; j++){
                     Tile t = new Tile(sectorPattern[j], tilePattern[j]);
                     this.tiles.add(t);
                     sector.addSectorTiles(t);
                 }
             } else {
-                int[] tilePattern = borderSectorTiles.get(index).stream().mapToInt(c -> c).toArray();
+                int[] tilePattern = borderSectorTiles.getFirst().stream().mapToInt(c -> c).toArray();
+                borderSectorTiles.removeFirst();
                 for(int j = 0; j < sectorPattern.length; j++){
                     Tile t = new Tile(sectorPattern[j], tilePattern[j]);
                     this.tiles.add(t);
@@ -96,7 +98,7 @@ public class Game {
             List<Integer> neighbours = rawNeighbours.getFirst();
             Tile[] tileNeighbours = new Tile[neighbours.size()];
             for (int i = 0; i < neighbours.size(); i++) {
-                tileNeighbours[i] = tiles.get(neighbours.get(i));
+                tileNeighbours[i] = tiles.get(neighbours.get(i)-1);
             }
             tile.setTileNeighbours(tileNeighbours);
         }
@@ -115,12 +117,12 @@ public class Game {
         Random random = new Random();
 
         for(int i = 0; i < 9; i++){
-            if(i == 3 || i == 5){
+            if(i == 4){
                 int index = random.nextInt(triPrimeSectorPattern.size());
                 List<Integer> pattern = triPrimeSectorPattern.get(index);
                 triPrimeSectorPattern.remove(index);
                 sectors.add(new TriPrimeSector(pattern.stream().mapToInt(c -> c).toArray(), i));
-            } else if (i == 4) {
+            } else if (i == 3 || i == 5) {
                 int index = random.nextInt(middleSectorPattern.size());
                 List<Integer> pattern = middleSectorPattern.get(index);
                 middleSectorPattern.remove(index);
@@ -134,7 +136,6 @@ public class Game {
         }
 
         generateTiles();
-
     }
 
     public void plan(){
