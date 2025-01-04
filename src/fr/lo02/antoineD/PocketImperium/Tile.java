@@ -10,7 +10,7 @@ public class Tile {
     private Tile[] tileNeighbours;
     private final List<Ship> ships = new ArrayList<>();
     private final int tilePoints;
-    private Player tileOccupant;
+    private Player tileOccupant = null;
 
     public Tile(int tilePoints, int tileIndex) {
         this.tilePoints = tilePoints;
@@ -66,7 +66,7 @@ public class Tile {
     public String toString() {
         return "Tile{" +
                 "tileIndex=" + tileIndex +
-
+                ", tileNeighbours=" + Arrays.stream(tileNeighbours).map(Tile::getTileIndex).toList() +
                 ", ships=" + ships +
                 ", tilePoints=" + tilePoints +
                 ", tileOccupant=" + tileOccupant +

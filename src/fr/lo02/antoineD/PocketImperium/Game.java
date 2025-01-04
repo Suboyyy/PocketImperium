@@ -120,13 +120,13 @@ public class Game {
 
         Random random = new Random();
 
-        for(int i = 0; i < 9; i++){
-            if(i == 4){
+        for(int i = 1; i <= 9; i++){
+            if(i == 5){
                 int index = random.nextInt(triPrimeSectorPattern.size());
                 List<Integer> pattern = triPrimeSectorPattern.get(index);
                 triPrimeSectorPattern.remove(index);
                 sectors.add(new TriPrimeSector(pattern.stream().mapToInt(c -> c).toArray(), i));
-            } else if (i == 3 || i == 5) {
+            } else if (i == 4 || i == 6) {
                 int index = random.nextInt(middleSectorPattern.size());
                 List<Integer> pattern = middleSectorPattern.get(index);
                 middleSectorPattern.remove(index);
@@ -248,6 +248,28 @@ public class Game {
                 str.append(" ship ").append(tiles.get(index + j).getShips().size()).append(" |");
                 if (index+j == 18 || index+j == 23 || index+j == 27) {
                     str.append(" ship ").append(tiles.get(24).getShips().size()).append(" |");
+                    k++;
+                }
+            }
+            System.out.println(str);
+            str = new StringBuilder();
+            if (pattern[i%2] == 5) {
+                str.append("    ");
+            }
+            str.append("|");
+            k = 0;
+            for (int j = 0; j+k < pattern[i%2]; j++) {
+                if (tiles.get(index + j).getTileOccupant() != null) {
+                    str.append(" play ").append(tiles.get(index + j).getTileOccupant().getPlayerIndex()+1).append(" |");
+                } else {
+                    str.append("  null  |");
+                }
+                if (index+j == 18 || index+j == 23 || index+j == 27) {
+                    if (tiles.get(24).getTileOccupant() != null) {
+                        str.append(" play ").append(tiles.get(24).getTileOccupant().getPlayerIndex()+1).append(" |");
+                    } else {
+                        str.append("  null  |");
+                    }
                     k++;
                 }
             }

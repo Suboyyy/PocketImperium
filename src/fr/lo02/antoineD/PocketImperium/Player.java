@@ -62,12 +62,13 @@ public class Player {
             ships.add(ship);
             tile.addShip(ship);
         }
+        tile.setTileOccupant(this);
     }
 
     public void plan(){
         this.orderedActions = new actions[3];
         Scanner sc = new Scanner(System.in);
-        System.out.println("Choisissez l'ordre de vos actions :");
+        System.out.println("Joueur " + (this.getPlayerIndex()+1) + ": Choisissez l'ordre de vos actions :");
         System.out.println("1. Expand");
         System.out.println("2. Explore");
         System.out.println("3. Exterminate");
@@ -247,7 +248,6 @@ public class Player {
     }
 
     public Sector selectSector(List<Sector> sectors){
-        // TODO : test Scanner class
         Scanner sc = new Scanner(System.in);
         if (sectors.size() == 9) {
             System.out.println("Choisissez un secteur entre 1 et 9 : ");
@@ -258,13 +258,11 @@ public class Player {
             }
         }
         int sectorIndex = sc.nextInt();
-        for (Sector sector : sectors) {
-            if (sector.getSectorIndex() == sectorIndex) {
-                return sector;
-            }
+        if (sectorIndex < 1 || sectorIndex > 9) {
+            System.out.println("Ce secteur n'est pas valide");
+            return selectSector(sectors);
         }
-        System.out.println("Ce secteur n'est pas valide");
-        return selectSector(sectors);
+        return sectors.get(sectorIndex-1);
     }
 
     public Tile selectTile(List<Sector> sectors, boolean bypass){
@@ -281,7 +279,7 @@ public class Player {
         System.out.println("Choisissez une tuile parmi les suivantes :");
         for (int i = 0; i < tiles.size(); i++) {
             if (tiles.get(i).getTileOccupant() == this || bypass) {
-                System.out.println("Tuile n°" + (i+1) + " du secteur " + sector.getSectorIndex() + ", index : " + tiles.get(i).getTileIndex());
+                System.out.println("Tuile n°" + (i+1) + " du secteur " + sector.getSectorIndex() + ", points : " + tiles.get(i).getTilePoints() + ", index : " + tiles.get(i).getTileIndex() );
             }
         }
         int tileIndex = sc.nextInt();
@@ -289,8 +287,8 @@ public class Player {
             System.out.println("Cette tuile n'est pas valide");
             return selectTile(sectors, bypass);
         }
-        if (tiles.get(tileIndex).getTileOccupant() == this || bypass) {
-            return tiles.get(tileIndex+1);
+        if (tiles.get(tileIndex-1).getTileOccupant() == this || bypass) {
+            return tiles.get(tileIndex-1);
         }
         System.out.println("Cette tuile n'est pas valide");
         return selectTile(sectors, false);
