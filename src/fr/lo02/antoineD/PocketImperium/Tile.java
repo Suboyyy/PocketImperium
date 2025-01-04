@@ -66,7 +66,7 @@ public class Tile {
     public String toString() {
         return "Tile{" +
                 "tileIndex=" + tileIndex +
-                ", tileNeighbours=" + Arrays.stream(tileNeighbours).map(Tile::getTileIndex).toList() +
+
                 ", ships=" + ships +
                 ", tilePoints=" + tilePoints +
                 ", tileOccupant=" + tileOccupant +

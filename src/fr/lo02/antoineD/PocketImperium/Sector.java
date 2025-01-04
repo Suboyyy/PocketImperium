@@ -39,4 +39,5 @@ public abstract class Sector {
         this.sectorTiles.add(sectorTiles);
     }
 
+    //public abstract String toString(int line, int row);
 }

@@ -42,7 +42,7 @@ public class Player {
     }
 
     public void startGame(List<Sector> sectors){
-        System.out.println("Déploiement initial pour le joueur n°" + playerIndex+1);
+        System.out.println("Déploiement initial pour le joueur n°" + (playerIndex+1));
         System.out.println("Choix d'une tuile de niveau 1 :");
         List<Sector> sector = new ArrayList<>();
         Sector selectedSector = selectSector(sectors);
@@ -281,16 +281,16 @@ public class Player {
         System.out.println("Choisissez une tuile parmi les suivantes :");
         for (int i = 0; i < tiles.size(); i++) {
             if (tiles.get(i).getTileOccupant() == this || bypass) {
-                System.out.println("Tuile n°" + i + " du secteur " + sector.getSectorIndex());
+                System.out.println("Tuile n°" + (i+1) + " du secteur " + sector.getSectorIndex() + ", index : " + tiles.get(i).getTileIndex());
             }
         }
         int tileIndex = sc.nextInt();
-        if (tileIndex < 0 || tileIndex >= tiles.size()) {
+        if (tileIndex < 1 || tileIndex > tiles.size()) {
             System.out.println("Cette tuile n'est pas valide");
             return selectTile(sectors, bypass);
         }
         if (tiles.get(tileIndex).getTileOccupant() == this || bypass) {
-            return tiles.get(tileIndex);
+            return tiles.get(tileIndex+1);
         }
         System.out.println("Cette tuile n'est pas valide");
         return selectTile(sectors, false);

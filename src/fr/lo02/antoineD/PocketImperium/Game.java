@@ -3,7 +3,9 @@ package fr.lo02.antoineD.PocketImperium;
 import fr.lo02.antoineD.PocketImperium.Exception.AlreadyInitedException;
 import fr.lo02.antoineD.PocketImperium.Exception.UndefinedActionException;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 public class Game {
     private static final List<Sector> sectors = new ArrayList<>();
@@ -39,10 +41,12 @@ public class Game {
     }
 
     public void startGame(){
+        printMap();
         for (int i = 0; i < 3; i++) {
             Player player = players.get((firstPlayerIndex + i) % 3);
             player.startGame(sectors);
         }
+        printMap();
         for (int i = 0; i < 3; i++) {
             Player player = players.get((2 - i + firstPlayerIndex) % 3);
             player.startGame(sectors);
@@ -220,27 +224,35 @@ public class Game {
         int[] pattern = new int[]{6, 5};
         int index = 0;
         for (int i = 0; i < 9; i++) {
+            StringBuilder str = new StringBuilder();
             if (pattern[i%2] == 5) {
-                System.out.print("  ");
+                str.append("    ");
             }
-            System.out.println("|");
-            for (int j = 0; j < pattern[i%2]; j++) {
-                System.out.print(" lvl " + tiles.get(index).getTilePoints() + " |");
-                if (index == 19 || index == 23 || index == 24 || index == 28) {
-                    System.out.println("| lvl 24 |");
+            str.append("|");
+            int k = 0;
+            for (int j = 0; j+k < pattern[i%2]; j++) {
+                str.append(" lvl ").append(tiles.get(index + j).getTilePoints()).append("  |");
+                if (index+j == 18 || index+j == 23 || index+j == 27) {
+                    str.append(" lvl 3 |");
+                    k++;
                 }
             }
+            System.out.println(str);
+            str = new StringBuilder();
             if (pattern[i%2] == 5) {
-                System.out.print("  ");
+                str.append("    ");
             }
-            System.out.println("|");
-            for (int j = 0; j < pattern[i%2]; j++) {
-                System.out.print(" ship " + tiles.get(index).getShips().size() + " |");
-                if (index == 19 || index == 23 || index == 24 || index == 28) {
-                    System.out.println(" ship " + tiles.get(24).getShips().size() + " |");
+            str.append("|");
+            k = 0;
+            for (int j = 0; j+k < pattern[i%2]; j++) {
+                str.append(" ship ").append(tiles.get(index + j).getShips().size()).append(" |");
+                if (index+j == 18 || index+j == 23 || index+j == 27) {
+                    str.append(" ship ").append(tiles.get(24).getShips().size()).append(" |");
+                    k++;
                 }
             }
-            index++;
+            System.out.println(str);
+            index += pattern[i%2]-k;
         }
     }
 
