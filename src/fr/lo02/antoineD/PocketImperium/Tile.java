@@ -3,7 +3,6 @@ package fr.lo02.antoineD.PocketImperium;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Tile {
     private final int tileIndex;
@@ -41,12 +40,18 @@ public class Tile {
         this.tileNeighbours = tileNeighbours;
     }
 
-    public void addShip(Ship ship) {
+    public void addShip(Ship ship, Player p) {
         ships.add(ship);
+        if (tileOccupant == null) {
+            this.tileOccupant = p;
+        }
     }
 
     public void removeShip(Ship ship) {
         ships.remove(ship);
+        if (ships.isEmpty()) {
+            this.tileOccupant = null;
+        }
     }
 
     public Tile[] getTileNeighbours() {

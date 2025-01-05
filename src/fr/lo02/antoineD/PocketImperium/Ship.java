@@ -1,6 +1,7 @@
 package fr.lo02.antoineD.PocketImperium;
 
 public class Ship {
+    public static int nextShipIndex = 1;
     private final int shipIndex;
     private Tile shipPosition;
 

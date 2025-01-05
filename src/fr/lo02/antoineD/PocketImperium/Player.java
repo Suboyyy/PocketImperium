@@ -58,11 +58,11 @@ public class Player {
             tile = selectTile(sector, true);
         }
         for (int i = 0; i < 2; i++) {
-            Ship ship = new Ship(i, tile);
+            Ship ship = new Ship(Ship.nextShipIndex, tile);
+            Ship.nextShipIndex++;
             ships.add(ship);
-            tile.addShip(ship);
+            tile.addShip(ship, this);
         }
-        tile.setTileOccupant(this);
     }
 
     public void plan(){
@@ -108,6 +108,7 @@ public class Player {
     }
 
     public void expand(int level){
+        System.out.println("Joueur " + (this.getPlayerIndex()+1) + ": Expansion de niveau " + level);
         int nbShips = getShips().size();
         if (nbShips == 25) {
             System.out.println("Vous avez déjà le nombre maximum de vaisseaux");
@@ -121,21 +122,35 @@ public class Player {
     }
 
     public void explore(int level){
-        // TODO : Auto occupy system
-        //  Add ship during move
-        //  Only one move per ship
-        for (int i = 0; i < level; i++) {
+        System.out.println("Joueur " + (this.getPlayerIndex()+1) + ": Exploration de niveau " + level);
+        List<Ship> movedShips = new ArrayList<>();
+        for (int i = 1; i <= level; i++) {
             System.out.println("Exploration n°" + i);
             List<Ship> fleet = selectFleet();
+            boolean alreadyMoved = true;
+            while (alreadyMoved) {
+                alreadyMoved = false;
+                for (Ship s : fleet) {
+                    if (movedShips.contains(s)) {
+                        System.out.println("Un des vaisseaux a déjà été déplacé");
+                        alreadyMoved = true;
+                        fleet = selectFleet();
+                        break;
+                    }
+                }
+            }
             System.out.println("1er déplacement de la flotte :");
             moveFleet(fleet, false);
             if (fleet.getFirst().getShipPosition().getTilePoints() == 3) {return;}
+            fleet.addAll(addToFleet(fleet.getFirst().getShipPosition()));
             System.out.println("2ème déplacement de la flotte :");
             moveFleet(fleet, false);
+            movedShips.addAll(fleet);
         }
     }
 
     public void exterminate(int level){
+        System.out.println("Joueur " + (this.getPlayerIndex()+1) + ": Extermination de niveau " + level);
         for (int i = 0; i < level; i++) {
             System.out.println("Attaque n°" + i);
             System.out.println("Sélection de la case à attaquer :");
@@ -153,9 +168,10 @@ public class Player {
         System.out.println("Création de nouveaux vaisseaux :");
         Tile tile = selectTile(sectors, false);
         for (int i = 0; i < nbShips; i++) {
-            Ship ship = new Ship(i, tile);
+            Ship ship = new Ship(Ship.nextShipIndex, tile);
+            Ship.nextShipIndex++;
             ships.add(ship);
-            tile.addShip(ship);
+            tile.addShip(ship, this);
         }
     }
 
@@ -164,30 +180,54 @@ public class Player {
     }
 
     public List<Ship> selectFleet() {
-        System.out.println("Voici vos vaisseaux, quelle flotte voulez vous utiliser ?");
+        System.out.println("Voici vos vaisseaux, veuillez en sélectionner un pour constituer votre flotte:");
         for (Ship s : ships) {
             System.out.println("Vaisseau n°" + s.getShipIndex() + " sur la tuile " + s.getShipPosition().getTileIndex());
         }
         Scanner sc = new Scanner(System.in);
         int shipIndex = sc.nextInt();
-        int tileIndex = -1;
-        for (Ship s : ships) {
-            if (s.getShipIndex() == shipIndex) {
-                tileIndex = s.getShipPosition().getTileIndex();
-                break;
-            }
-        }
-        if (tileIndex == -1) {
-            System.out.println("Ce vaisseau n'existe pas");
-            return selectFleet();
-        }
         List<Ship> fleet = new ArrayList<>();
         for (Ship s : ships) {
-            if (s.getShipPosition().getTileIndex() == tileIndex) {
+            if (s.getShipIndex() == shipIndex) {
                 fleet.add(s);
+                fleet.addAll(addToFleet(s.getShipPosition()));
+                return fleet;
+            } else {
+                System.out.println("Ce vaisseau n'existe pas");
+                return selectFleet();
             }
         }
-        return fleet;
+        return selectFleet();
+    }
+
+    public List<Ship> addToFleet(Tile tile) {
+        System.out.println("Voici les vaisseaux disponibles, voulez vous en ajouter à la flotte ? (y/n)");
+        for (Ship s : tile.getShips()) {
+            System.out.println("Vaisseau n°" + s.getShipIndex() + " sur la tuile " + s.getShipPosition().getTileIndex());
+        }
+        String answer;
+        Scanner sc = new Scanner(System.in);
+        do {
+            answer = sc.nextLine();
+        } while (!answer.equals("y") && !answer.equals("n"));
+        if (answer.equals("y")) {
+            System.out.println("Quels vaisseaux voulez vous ajouter ? (-1 pour arrêter)");
+            List<Ship> fleet = new ArrayList<>();
+            int index = sc.nextInt();
+            while (index != -1) {
+                for (Ship s : tile.getShips()) {
+                    if (s.getShipIndex() == index) {
+                        fleet.add(s);
+                        System.out.println("Vaisseau n°" + s.getShipIndex() + " ajouté à la flotte");
+                        break;
+                    }
+                    System.out.println("Ce vaisseau n'existe pas");
+                }
+                index = sc.nextInt();
+            }
+            return fleet;
+        }
+        return new ArrayList<>();
     }
 
     public List<Ship> selectFleet(Tile tile) {
@@ -213,9 +253,11 @@ public class Player {
         System.out.println("Où voulez vous déplacer votre flotte ?");
         Tile destination = selectTile(Game.getSectors(), bypass);
         for (Ship ship : fleet) {
-            if (ship.getShipPosition().hasNeighbour(destination))
+            if (ship.getShipPosition().hasNeighbour(destination)) {
+                ship.getShipPosition().removeShip(ship);
                 ship.moveShip(destination);
-            else {
+                destination.addShip(ship, this);
+            } else {
                 System.out.println("La destination n'est pas un voisin du vaisseau");
             }
         }
